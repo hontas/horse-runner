@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Background circle for better contrast -->
+  <circle cx="128" cy="128" r="120" fill="#FFFFFF" stroke="#E91E63" stroke-width="8"/>
+  
+  <!-- Horse Head - Main Shape -->
+  <ellipse cx="128" cy="140" rx="65" ry="55" fill="#F8BBD9"/>
+  
+  <!-- Horse Snout -->
+  <ellipse cx="155" cy="155" rx="25" ry="18" fill="#FFFFFF"/>
+  <ellipse cx="160" cy="152" rx="8" ry="6" fill="#FFB3E6"/>
+  
+  <!-- Nostril -->
+  <ellipse cx="165" cy="150" rx="3" ry="2" fill="#E91E63"/>
+  
+  <!-- Eyes -->
+  <ellipse cx="115" cy="125" rx="12" ry="16" fill="#000000"/>
+  <ellipse cx="118" cy="120" rx="4" ry="5" fill="#FFFFFF"/>
+  <ellipse cx="116" cy="122" rx="2" ry="2" fill="#FFFFFF"/>
+  
+  <!-- Ears -->
+  <ellipse cx="105" cy="95" rx="12" ry="20" fill="#F8BBD9" transform="rotate(-20 105 95)"/>
+  <ellipse cx="151" cy="95" rx="12" ry="20" fill="#F8BBD9" transform="rotate(20 151 95)"/>
+  <ellipse cx="105" cy="95" rx="6" ry="12" fill="#FFB3E6" transform="rotate(-20 105 95)"/>
+  <ellipse cx="151" cy="95" rx="6" ry="12" fill="#FFB3E6" transform="rotate(20 151 95)"/>
+  
+  <!-- Mane - Multiple layers for depth -->
+  <path d="M 90 85 Q 85 75 80 90 Q 75 100 85 110 Q 95 105 100 95 Q 105 85 90 85 Z" fill="#FF4081"/>
+  <path d="M 100 80 Q 95 70 90 85 Q 85 95 95 105 Q 105 100 110 90 Q 115 80 100 80 Z" fill="#E91E63"/>
+  <path d="M 110 85 Q 105 75 100 90 Q 95 100 105 110 Q 115 105 120 95 Q 125 85 110 85 Z" fill="#FF4081"/>
+  <path d="M 120 90 Q 115 80 110 95 Q 105 105 115 115 Q 125 110 130 100 Q 135 90 120 90 Z" fill="#F8BBD9"/>
+  
+  <!-- Forelock (hair between ears) -->
+  <path d="M 118 75 Q 115 65 125 70 Q 135 75 140 85 Q 135 95 125 90 Q 115 85 118 75 Z" fill="#FF4081"/>
+  
+  <!-- Neck -->
+  <ellipse cx="128" cy="190" rx="40" ry="30" fill="#E91E63"/>
+  
+  <!-- More detailed mane flowing down neck -->
+  <path d="M 88 170 Q 80 160 85 180 Q 90 200 100 195 Q 110 190 105 175 Q 100 160 88 170 Z" fill="#FF4081"/>
+  <path d="M 98 175 Q 90 165 95 185 Q 100 205 110 200 Q 120 195 115 180 Q 110 165 98 175 Z" fill="#E91E63"/>
+  
+  <!-- Highlight on snout -->
+  <ellipse cx="150" cy="145" rx="8" ry="5" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Additional eye shine -->
+  <ellipse cx="120" cy="118" rx="1.5" ry="2" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Subtle shading -->
+  <ellipse cx="128" cy="150" rx="60" ry="50" fill="#E91E63" opacity="0.1"/>
+</svg>
