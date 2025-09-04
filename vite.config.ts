@@ -6,7 +6,9 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/horse-runner/' : '/',
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA?.slice(0, 7) || 'dev')
+    __COMMIT_HASH__: JSON.stringify(
+      process.env.GITHUB_SHA?.slice(0, 7) || 'dev'
+    ),
   },
   plugins: [
     react(),

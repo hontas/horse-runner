@@ -6,7 +6,8 @@ const VERSION_KEY = 'horse-runner-game-version'
 const MAX_HIGH_SCORES = 5
 
 // Use commit hash as primary version, fallback to build time for dev
-const GAME_VERSION = __COMMIT_HASH__ !== 'dev' ? __COMMIT_HASH__ : __BUILD_TIME__
+const GAME_VERSION =
+  __COMMIT_HASH__ !== 'dev' ? __COMMIT_HASH__ : __BUILD_TIME__
 
 /**
  * Load high scores from local storage
@@ -14,17 +15,17 @@ const GAME_VERSION = __COMMIT_HASH__ !== 'dev' ? __COMMIT_HASH__ : __BUILD_TIME_
 export const loadHighScores = (): HighScoreState => {
   try {
     const currentVersion = localStorage.getItem(VERSION_KEY)
-    
+
     // Only reset on actual deployments (when we have a real commit hash, not 'dev')
     // Skip version check for local development to preserve high scores during dev
     const isProduction = __COMMIT_HASH__ !== 'dev'
-    
+
     if (isProduction && currentVersion !== GAME_VERSION) {
       // Clear old scores on version change (production deployments only)
       localStorage.removeItem(HIGH_SCORES_KEY)
       localStorage.removeItem(LAST_PLAYER_NAME_KEY)
       localStorage.setItem(VERSION_KEY, GAME_VERSION)
-      
+
       return {
         scores: [],
         lastPlayerName: '',
@@ -32,8 +33,7 @@ export const loadHighScores = (): HighScoreState => {
     }
 
     const scoresData = localStorage.getItem(HIGH_SCORES_KEY)
-    const lastPlayerName =
-      localStorage.getItem(LAST_PLAYER_NAME_KEY) || ''
+    const lastPlayerName = localStorage.getItem(LAST_PLAYER_NAME_KEY) || ''
 
     const scores: HighScore[] = scoresData ? JSON.parse(scoresData) : []
 

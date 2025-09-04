@@ -14,14 +14,10 @@ export interface GameObject {
     | 'platform'
     | 'floatingPlatform'
     | 'mushroom'
-    | 'ramp'
-    | 'bridge'
-    | 'logPile'
   collected?: boolean
   obstacleType?: 'wall' | 'waterHole' | 'lowBarrier' | 'highBarrier' // For obstacle variants
   platformLevel?: number // For terrain platforms (0 = ground level, 1 = first level up, etc.)
   isRideable?: boolean // Whether horse can ride on top of this
-  rampSlope?: number // For ramps - the slope ratio (height/width)
 }
 
 export interface Horse {

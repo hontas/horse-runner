@@ -110,12 +110,12 @@
   .debugPage {
     padding: 10px;
   }
-  
+
   .canvasContainer {
     width: 100%;
     overflow-x: auto;
   }
-  
+
   .debugCanvas {
     min-width: 800px;
   }
@@ -127,7 +127,7 @@
     gap: 10px;
     text-align: center;
   }
-  
+
   .controls {
     flex-direction: column;
     gap: 5px;

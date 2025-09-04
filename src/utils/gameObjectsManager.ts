@@ -8,18 +8,22 @@ export class GameObjectsManager {
   private visibleObjects: GameObject[] = []
   private backgroundObjects: GameObject[] = []
   private foregroundObjects: GameObject[] = []
-  
+
   /**
    * Update object positions and filter out off-screen objects
    * Returns new array only if changes occurred
    */
-  updateObjects(objects: GameObject[], speed: number, isBlocked: boolean): GameObject[] {
+  updateObjects(
+    objects: GameObject[],
+    speed: number,
+    isBlocked: boolean
+  ): GameObject[] {
     let hasChanges = false
     let newObjects: GameObject[] | null = null
 
     for (let i = 0; i < objects.length; i++) {
       const obj = objects[i]
-      
+
       // Check if object should be removed (off-screen)
       if (obj.x <= -100) {
         if (!newObjects) {
@@ -47,7 +51,7 @@ export class GameObjectsManager {
       }
     }
 
-    return hasChanges ? (newObjects || []) : objects
+    return hasChanges ? newObjects || [] : objects
   }
 
   /**
@@ -100,27 +104,30 @@ export class GameObjectsManager {
    * Get platform objects for physics calculations
    */
   getPlatformObjects(): GameObject[] {
-    return this.visibleObjects.filter(obj => 
-      (obj.type === 'platform' || obj.type === 'floatingPlatform') && obj.isRideable
+    return this.visibleObjects.filter(
+      (obj) =>
+        (obj.type === 'platform' || obj.type === 'floatingPlatform') &&
+        obj.isRideable
     )
   }
 
   private isBackgroundObject(type: GameObject['type']): boolean {
-    return type === 'waterHole' || 
-           type === 'platform' || 
-           type === 'obstacle' || 
-           type === 'lowBarrier' || 
-           type === 'highBarrier' ||
-           type === 'floatingPlatform' ||
-           type === 'ramp' ||
-           type === 'bridge' ||
-           type === 'logPile'
+    return (
+      type === 'waterHole' ||
+      type === 'platform' ||
+      type === 'obstacle' ||
+      type === 'lowBarrier' ||
+      type === 'highBarrier' ||
+      type === 'floatingPlatform'
+    )
   }
 
   private isForegroundObject(type: GameObject['type']): boolean {
-    return type === 'fruit' || 
-           type === 'star' || 
-           type === 'key' || 
-           type === 'mushroom'
+    return (
+      type === 'fruit' ||
+      type === 'star' ||
+      type === 'key' ||
+      type === 'mushroom'
+    )
   }
 }

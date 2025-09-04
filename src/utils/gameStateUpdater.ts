@@ -29,7 +29,10 @@ export class GameStateUpdater {
       this.horseChanges.y = y
       this.hasChanges = true
     }
-    if (velocityY !== undefined && velocityY !== this.currentState.horse.velocityY) {
+    if (
+      velocityY !== undefined &&
+      velocityY !== this.currentState.horse.velocityY
+    ) {
       this.horseChanges.velocityY = velocityY
       this.hasChanges = true
     }
@@ -44,28 +47,46 @@ export class GameStateUpdater {
     drowningTimer?: number
   }) {
     const horse = this.currentState.horse
-    
-    if (states.isDucking !== undefined && states.isDucking !== horse.isDucking) {
+
+    if (
+      states.isDucking !== undefined &&
+      states.isDucking !== horse.isDucking
+    ) {
       this.horseChanges.isDucking = states.isDucking
       this.hasChanges = true
     }
-    if (states.isJumping !== undefined && states.isJumping !== horse.isJumping) {
+    if (
+      states.isJumping !== undefined &&
+      states.isJumping !== horse.isJumping
+    ) {
       this.horseChanges.isJumping = states.isJumping
       this.hasChanges = true
     }
-    if (states.isBlocked !== undefined && states.isBlocked !== horse.isBlocked) {
+    if (
+      states.isBlocked !== undefined &&
+      states.isBlocked !== horse.isBlocked
+    ) {
       this.horseChanges.isBlocked = states.isBlocked
       this.hasChanges = true
     }
-    if (states.isDrowning !== undefined && states.isDrowning !== horse.isDrowning) {
+    if (
+      states.isDrowning !== undefined &&
+      states.isDrowning !== horse.isDrowning
+    ) {
       this.horseChanges.isDrowning = states.isDrowning
       this.hasChanges = true
     }
-    if (states.currentPlatformLevel !== undefined && states.currentPlatformLevel !== horse.currentPlatformLevel) {
+    if (
+      states.currentPlatformLevel !== undefined &&
+      states.currentPlatformLevel !== horse.currentPlatformLevel
+    ) {
       this.horseChanges.currentPlatformLevel = states.currentPlatformLevel
       this.hasChanges = true
     }
-    if (states.drowningTimer !== undefined && states.drowningTimer !== horse.drowningTimer) {
+    if (
+      states.drowningTimer !== undefined &&
+      states.drowningTimer !== horse.drowningTimer
+    ) {
       this.horseChanges.drowningTimer = states.drowningTimer
       this.hasChanges = true
     }
@@ -82,16 +103,22 @@ export class GameStateUpdater {
     gameRunning?: boolean
   }) {
     const state = this.currentState
-    
+
     if (updates.speed !== undefined && updates.speed !== state.speed) {
       this.stateChanges.speed = updates.speed
       this.hasChanges = true
     }
-    if (updates.speedBoost !== undefined && updates.speedBoost !== state.speedBoost) {
+    if (
+      updates.speedBoost !== undefined &&
+      updates.speedBoost !== state.speedBoost
+    ) {
       this.stateChanges.speedBoost = updates.speedBoost
       this.hasChanges = true
     }
-    if (updates.speedFactor !== undefined && updates.speedFactor !== state.speedFactor) {
+    if (
+      updates.speedFactor !== undefined &&
+      updates.speedFactor !== state.speedFactor
+    ) {
       this.stateChanges.speedFactor = updates.speedFactor
       this.hasChanges = true
     }
@@ -107,7 +134,10 @@ export class GameStateUpdater {
       this.stateChanges.keys = updates.keys
       this.hasChanges = true
     }
-    if (updates.gameRunning !== undefined && updates.gameRunning !== state.gameRunning) {
+    if (
+      updates.gameRunning !== undefined &&
+      updates.gameRunning !== state.gameRunning
+    ) {
       this.stateChanges.gameRunning = updates.gameRunning
       this.hasChanges = true
     }

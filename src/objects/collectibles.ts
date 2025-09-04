@@ -28,7 +28,7 @@ export class CollectibleObjects {
       // Low fruit - can be collected while ducking (10-25px above ground)
       fruitY = GROUND_Y - 25 - Math.random() * 15
     } else if (fruitHeightRand < 0.7) {
-      // Mid fruit - normal running height (25-45px above ground)  
+      // Mid fruit - normal running height (25-45px above ground)
       fruitY = GROUND_Y - 45 - Math.random() * 20
     } else {
       // High fruit - requires jumping (45-80px above ground)
@@ -147,20 +147,24 @@ export class CollectibleEffects {
    */
   static handleFruitCollection(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     updates.score = gameState.score + 10
     // Fixed speed boost amount - no longer scales with speed factor
     const boostAmount = 0.6 // FRUIT_SPEED_BOOST_BASE
     updates.speedBoost = Math.min(2.5, gameState.speedBoost + boostAmount) // FRUIT_SPEED_BOOST_MAX
-    
+
     soundSystem.playSound('collect', 0.6)
     if (updates.speedBoost && updates.speedBoost > 0) {
       soundSystem.playSound('speedBoost', 0.4)
     }
-    
+
     // Create red collect particle effect for apples
-    particleSystem.createCollectEffect(gameState.horse.x + 40, gameState.horse.y + 40, '#FF6B47')
-    
+    particleSystem.createCollectEffect(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40,
+      '#FF6B47'
+    )
+
     return updates
   }
 
@@ -169,13 +173,16 @@ export class CollectibleEffects {
    */
   static handleStarCollection(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     updates.score = gameState.score + 50
-    
+
     soundSystem.playSound('star', 0.8)
     // Create golden sparkle effect
-    particleSystem.createSparkleEffect(gameState.horse.x + 40, gameState.horse.y + 40)
-    
+    particleSystem.createSparkleEffect(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40
+    )
+
     return updates
   }
 
@@ -184,14 +191,18 @@ export class CollectibleEffects {
    */
   static handleKeyCollection(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     updates.keys = gameState.keys + 1
     updates.score = gameState.score + 25
-    
+
     soundSystem.playSound('collect', 0.7)
     // Create yellow collect particle effect
-    particleSystem.createCollectEffect(gameState.horse.x + 40, gameState.horse.y + 40, '#FFD700')
-    
+    particleSystem.createCollectEffect(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40,
+      '#FFD700'
+    )
+
     return updates
   }
 
@@ -200,15 +211,19 @@ export class CollectibleEffects {
    */
   static handleMushroomCollection(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     // No score - mushrooms are purely negative
     // Fixed speed reduction - no longer scales with speed factor
     updates.speedBoost = Math.max(-2.0, gameState.speedBoost - 0.4) // MUSHROOM_SPEED_REDUCTION
-    
+
     soundSystem.playSound('collect', 0.4) // Quieter sound to indicate it's not as good as fruit
     // Create purple negative effect
-    particleSystem.createCollectEffect(gameState.horse.x + 40, gameState.horse.y + 40, '#8B008B')
-    
+    particleSystem.createCollectEffect(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40,
+      '#8B008B'
+    )
+
     return updates
   }
 }

@@ -8,22 +8,14 @@ export {
   CollectibleObjects,
   CollectibleRenderer,
   CollectibleEffects,
-  type CollectibleConfig
+  type CollectibleConfig,
 } from './collectibles'
 
 // Obstacles
-export {
-  ObstacleObjects,
-  ObstacleRenderer,
-  ObstacleEffects
-} from './obstacles'
+export { ObstacleObjects, ObstacleRenderer, ObstacleEffects } from './obstacles'
 
 // Terrain
-export {
-  TerrainObjects,
-  TerrainRenderer,
-  TerrainEffects
-} from './terrain'
+export { TerrainObjects, TerrainRenderer, TerrainEffects } from './terrain'
 
 // Re-export types from main types file for convenience
 export type { GameObject, GameState } from '../types/gameTypes'

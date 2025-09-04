@@ -12,7 +12,7 @@ export const drawGameObject = (
 ): void => {
   // Save canvas state to prevent corruption
   ctx.save()
-  
+
   switch (obj.type) {
     // Collectibles
     case 'fruit':
@@ -56,24 +56,11 @@ export const drawGameObject = (
     case 'floatingPlatform':
       TerrainRenderer.drawFloatingPlatform(ctx, obj)
       break
-
-    case 'ramp':
-      TerrainRenderer.drawRamp(ctx, obj)
-      break
-
-    case 'bridge':
-      TerrainRenderer.drawBridge(ctx, obj)
-      break
-
-    case 'logPile':
-      TerrainRenderer.drawLogPile(ctx, obj)
-      break
   }
-  
+
   // Restore canvas state
   ctx.restore()
 }
-
 
 /**
  * Renders the game background (sky, ground, grass) with clouds
@@ -101,7 +88,6 @@ export const drawBackground = (
   ctx.fillRect(0, groundY - 10, gameWidth, 10)
 }
 
-
 /**
  * Draw fluffy clouds
  */
@@ -112,17 +98,17 @@ const drawClouds = (
   offset: number
 ): void => {
   ctx.fillStyle = '#FFFFFF'
-  
+
   // Draw several clouds at different positions
   const cloudPositions = [
     { x: 100, y: 60, size: 1.0 },
     { x: 300, y: 40, size: 0.8 },
     { x: 550, y: 80, size: 1.2 },
-    { x: 750, y: 50, size: 0.9 }
+    { x: 750, y: 50, size: 0.9 },
   ]
-  
-  cloudPositions.forEach(cloud => {
-    const x = (cloud.x - offset) % (gameWidth + 200) - 100
+
+  cloudPositions.forEach((cloud) => {
+    const x = ((cloud.x - offset) % (gameWidth + 200)) - 100
     drawSingleCloud(ctx, x, cloud.y, cloud.size)
   })
 }
@@ -137,7 +123,7 @@ const drawSingleCloud = (
   size: number
 ): void => {
   const s = size * 20
-  
+
   // Cloud body - multiple overlapping circles
   ctx.beginPath()
   ctx.arc(x, y, s, 0, Math.PI * 2)
@@ -149,7 +135,6 @@ const drawSingleCloud = (
   ctx.arc(x + s * 1.8, y - s * 0.3, s * 0.5, 0, Math.PI * 2)
   ctx.fill()
 }
-
 
 /**
  * Renders the game UI elements
@@ -164,7 +149,7 @@ export const drawUI = (
 ): void => {
   // Save canvas state for UI rendering
   ctx.save()
-  
+
   // Set text alignment for UI
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
@@ -176,7 +161,7 @@ export const drawUI = (
   ctx.fillText(`Distance: ${Math.floor(distance)}m`, 10, 50)
   ctx.fillText(`Speed: ${speed.toFixed(1)}`, 10, 70)
   ctx.fillText(`Keys: ${keys}`, 10, 90)
-  
+
   // Restore canvas state
   ctx.restore()
 }

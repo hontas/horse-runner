@@ -13,7 +13,6 @@ import {
 // Create reusable spawner instance
 const objectSpawner = new ObjectSpawner()
 
-
 /**
  * Spawn new game objects when needed using the cleaner object spawner
  */
@@ -37,7 +36,7 @@ export const spawnNewObjects = (
     // Generate new objects with dynamic spacing using the weighted spawner
     const spawnX = Math.max(rightmostX + spacing, GAME_WIDTH + 50)
     const newObjects = objectSpawner.generateObjects(spawnX, speedFactor)
-    
+
     return [...gameObjects, ...newObjects]
   }
 
@@ -107,12 +106,6 @@ export const handleCollisionEffects = (
       return TerrainEffects.handlePlatformCollision(gameState)
     case 'floatingPlatform':
       return TerrainEffects.handleFloatingPlatformCollision(gameState)
-    case 'ramp':
-      return TerrainEffects.handleRampCollision(gameState)
-    case 'bridge':
-      return TerrainEffects.handleBridgeCollision(gameState)
-    case 'logPile':
-      return TerrainEffects.handleLogPileCollision(gameState)
 
     default:
       return {}

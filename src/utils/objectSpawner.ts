@@ -3,11 +3,7 @@ import {
   MUSHROOM_SPAWN_CHANCE,
   KEY_SPAWN_CHANCE,
 } from '../constants/gameConstants'
-import {
-  CollectibleObjects,
-  ObstacleObjects,
-  TerrainObjects
-} from '../objects'
+import { CollectibleObjects, ObstacleObjects, TerrainObjects } from '../objects'
 
 // Weighted spawn table for easier balancing
 interface SpawnEntry {
@@ -24,7 +20,7 @@ export class ObjectSpawner {
       generator: (spawnX) => CollectibleObjects.generateFruit(spawnX),
     },
     {
-      type: 'collectible', 
+      type: 'collectible',
       weight: MUSHROOM_SPAWN_CHANCE, // 15% chance for mushrooms
       generator: (spawnX) => CollectibleObjects.generateMushroom(spawnX + 25),
     },
@@ -81,22 +77,8 @@ export class ObjectSpawner {
     {
       type: 'terrain',
       weight: 0.18, // Floating platforms
-      generator: (spawnX) => TerrainObjects.generateFloatingPlatform(spawnX + 100),
-    },
-    {
-      type: 'terrain',
-      weight: 0.05, // Ramps
-      generator: (spawnX) => TerrainObjects.generateRamp(spawnX),
-    },
-    {
-      type: 'terrain',
-      weight: 0.04, // Bridges
-      generator: (spawnX) => TerrainObjects.generateBridge(spawnX),
-    },
-    {
-      type: 'terrain',
-      weight: 0.03, // Log piles
-      generator: (spawnX) => TerrainObjects.generateLogPile(spawnX),
+      generator: (spawnX) =>
+        TerrainObjects.generateFloatingPlatform(spawnX + 100),
     },
   ]
 
@@ -104,14 +86,14 @@ export class ObjectSpawner {
   private selectFromTable(table: SpawnEntry[]): SpawnEntry | null {
     const random = Math.random()
     let currentWeight = 0
-    
+
     for (const entry of table) {
       currentWeight += entry.weight
       if (random <= currentWeight) {
         return entry
       }
     }
-    
+
     return null // Shouldn't happen if weights are properly configured
   }
 
@@ -136,5 +118,4 @@ export class ObjectSpawner {
 
     return newObjects
   }
-
 }

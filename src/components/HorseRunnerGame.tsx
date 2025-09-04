@@ -412,7 +412,10 @@ const HorseRunnerGame: React.FC = () => {
         updateBlockingState(updater, prev.horse, hitPlatformWall)
 
         // Progressive speed factor increase with higher cap for more challenging late game
-        const targetSpeedFactor = Math.min(2.2, 1.0 + prev.distance * SPEED_FACTOR_INCREASE_RATE)
+        const targetSpeedFactor = Math.min(
+          2.2,
+          1.0 + prev.distance * SPEED_FACTOR_INCREASE_RATE
+        )
         updater.updateGameStats({ speedFactor: targetSpeedFactor })
 
         // Update speed with natural slowdown recovery (but pause when horse is blocked)
@@ -425,11 +428,15 @@ const HorseRunnerGame: React.FC = () => {
           if (prev.speedBoost > 0) {
             // Positive speed boost (from apples) - makes horse faster
             newSpeedBoost = prev.speedBoost - 0.03
-            newSpeed = (prev.baseSpeed + newSpeedBoost * 0.8) * targetSpeedFactor
+            newSpeed =
+              (prev.baseSpeed + newSpeedBoost * 0.8) * targetSpeedFactor
           } else if (prev.speedBoost < 0) {
             // Negative speed effects (from mushrooms) - makes horse slower, recovers over time
             newSpeedBoost = Math.min(0, prev.speedBoost + 0.01) // Gradual recovery from slowdowns
-            newSpeed = Math.max(prev.baseSpeed * 0.6, (prev.baseSpeed + newSpeedBoost) * targetSpeedFactor)
+            newSpeed = Math.max(
+              prev.baseSpeed * 0.6,
+              (prev.baseSpeed + newSpeedBoost) * targetSpeedFactor
+            )
           } else {
             // No speed effects - natural deceleration
             newSpeed = Math.max(prev.baseSpeed * 0.8, prev.speed - 0.005)
@@ -443,7 +450,11 @@ const HorseRunnerGame: React.FC = () => {
         updater.updateGameStats({ speed: newSpeed, speedBoost: newSpeedBoost })
 
         // Update game objects efficiently
-        let updatedObjects = objManager.updateObjects(prev.gameObjects, newSpeed, currentHorse.isBlocked)
+        let updatedObjects = objManager.updateObjects(
+          prev.gameObjects,
+          newSpeed,
+          currentHorse.isBlocked
+        )
 
         // Spawn new objects and remove off-screen ones
         updatedObjects = spawnNewObjects(updatedObjects, targetSpeedFactor)
@@ -451,7 +462,9 @@ const HorseRunnerGame: React.FC = () => {
 
         // Update distance (only if not blocked by terrain)
         if (!currentHorse.isBlocked) {
-          updater.updateGameStats({ distance: prev.distance + Math.floor(newSpeed / 2) })
+          updater.updateGameStats({
+            distance: prev.distance + Math.floor(newSpeed / 2),
+          })
         }
 
         // Update particle system
@@ -463,17 +476,20 @@ const HorseRunnerGame: React.FC = () => {
         // Check collisions with visible objects only
         objManager.getVisibleObjects().forEach((obj) => {
           let hasCollision = false
-          
+
           // Special collision logic for floating platforms
           if (obj.type === 'floatingPlatform') {
             // For floating platforms, only collide if horse is at platform level or above
             // This allows the horse to walk underneath
-            const horseHeight = currentHorse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
+            const horseHeight = currentHorse.isDucking
+              ? DUCK_HEIGHT
+              : HORSE_HEIGHT
             const horseBottom = currentHorse.y + horseHeight
             const platformTop = obj.y
-            
+
             // Only collide if horse is at or above platform level
-            if (horseBottom <= platformTop + 10) { // Small buffer for landing
+            if (horseBottom <= platformTop + 10) {
+              // Small buffer for landing
               hasCollision = checkCollision(currentHorse, obj)
             }
           } else {
@@ -483,17 +499,14 @@ const HorseRunnerGame: React.FC = () => {
 
           if (!obj.collected && hasCollision) {
             // Don't mark terrain objects as collected - they're permanent terrain
-            const terrainTypes = ['platform', 'waterHole', 'floatingPlatform', 'ramp', 'bridge', 'logPile']
+            const terrainTypes = ['platform', 'waterHole', 'floatingPlatform']
             if (!terrainTypes.includes(obj.type)) {
               obj.collected = true
             }
 
             const currentState = updater.getUpdatedState()
-            const collisionUpdates = handleCollisionEffects(
-              currentState,
-              obj
-            )
-            
+            const collisionUpdates = handleCollisionEffects(currentState, obj)
+
             // Apply collision updates
             if (collisionUpdates.score !== undefined) {
               updater.updateGameStats({ score: collisionUpdates.score })
@@ -502,10 +515,14 @@ const HorseRunnerGame: React.FC = () => {
               updater.updateGameStats({ keys: collisionUpdates.keys })
             }
             if (collisionUpdates.speedBoost !== undefined) {
-              updater.updateGameStats({ speedBoost: collisionUpdates.speedBoost })
+              updater.updateGameStats({
+                speedBoost: collisionUpdates.speedBoost,
+              })
             }
             if (collisionUpdates.gameRunning !== undefined) {
-              updater.updateGameStats({ gameRunning: collisionUpdates.gameRunning })
+              updater.updateGameStats({
+                gameRunning: collisionUpdates.gameRunning,
+              })
             }
             if (collisionUpdates.horse) {
               updater.updateHorseStates({

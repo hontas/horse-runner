@@ -12,7 +12,6 @@ import {
 import {
   checkPlatformLanding,
   checkPlatformWallCollision,
-  checkRampLanding,
 } from './collisionHelpers'
 import { soundSystem } from './soundSystem'
 import { particleSystem } from './particleSystem'
@@ -35,26 +34,19 @@ export function updateHorsePhysics(
     updater.updateHorsePosition(undefined, newY, newVelocityY)
   }
 
-  // Platform collision detection  
+  // Platform collision detection
   let landedOnPlatform = false
   let hitPlatformWall = false
 
   gameObjects.forEach((obj) => {
-    if (obj.type === 'ramp' && obj.isRideable) {
-      // Special handling for ramps - horse follows the slope
-      const rampResult = checkRampLanding(horse, obj)
-      if (rampResult.isOnRamp && rampResult.rampY !== undefined) {
-        updater.updateHorsePosition(undefined, rampResult.rampY, 0)
-        updater.updateHorseStates({
-          isJumping: false,
-          currentPlatformLevel: 0, // Ramps are at ground level
-        })
-        landedOnPlatform = true
-      }
-    } else if ((obj.type === 'platform' || obj.type === 'floatingPlatform' || obj.type === 'bridge') && obj.isRideable) {
-      // Standard platform/bridge handling
+    if (
+      (obj.type === 'platform' || obj.type === 'floatingPlatform') &&
+      obj.isRideable
+    ) {
+      // Standard platform handling
       if (checkPlatformLanding(horse, obj)) {
-        const platformSurface = obj.y - (horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
+        const platformSurface =
+          obj.y - (horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
         updater.updateHorsePosition(undefined, platformSurface, 0)
         updater.updateHorseStates({
           isJumping: false,
@@ -68,7 +60,7 @@ export function updateHorsePhysics(
         }
       }
 
-      // Check if horse hits platform wall (not applicable to ramps)
+      // Check if horse hits platform wall
       if (checkPlatformWallCollision(horse, obj)) {
         hitPlatformWall = true
         updater.updateHorseStates({ isBlocked: true })
@@ -126,8 +118,9 @@ export function updateGroundCollision(
   // Ground collision (if not on a platform and not drowning)
   if (!landedOnPlatform && !horse.isDrowning) {
     const currentHorse = updater.getCurrentHorse()
-    const targetGroundY = GROUND_Y - (currentHorse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
-    
+    const targetGroundY =
+      GROUND_Y - (currentHorse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
+
     if (currentHorse.y >= targetGroundY) {
       updater.updateHorsePosition(undefined, targetGroundY, 0)
       updater.updateHorseStates({

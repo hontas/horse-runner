@@ -11,13 +11,14 @@ export class ObstacleObjects {
    * Generate a water hole obstacle
    */
   static generateWaterHole(spawnX: number): GameObject {
-    const waterHoleWidth = 40 + Math.random() * 30 // 40-70px wide
-    
+    const waterHoleWidth = 60 + Math.random() * 30 // 60-90px wide
+    const waterHoleHeight = 100
+
     return {
       x: spawnX,
-      y: GROUND_Y - 80, // Deep pit extending below ground
+      y: GROUND_Y, // Deep pit extending below ground
       width: waterHoleWidth,
-      height: 80, // Full depth to bottom of screen
+      height: waterHoleHeight, // Full depth to bottom of screen
       type: 'waterHole',
     }
   }
@@ -28,7 +29,7 @@ export class ObstacleObjects {
   static generateLowBarrier(spawnX: number): GameObject {
     const barrierWidth = 20 + Math.random() * 20 // 20-40px wide
     const barrierHeight = 30 + Math.random() * 15 // 30-45px high
-    
+
     return {
       x: spawnX,
       y: GROUND_Y - barrierHeight,
@@ -44,7 +45,7 @@ export class ObstacleObjects {
   static generateHighBarrier(spawnX: number): GameObject {
     const barrierWidth = 15 + Math.random() * 15 // 15-30px wide
     const barrierHeight = 60 + Math.random() * 20 // 60-80px high
-    
+
     return {
       x: spawnX,
       y: GROUND_Y - barrierHeight,
@@ -60,7 +61,7 @@ export class ObstacleObjects {
   static generateObstacle(spawnX: number): GameObject {
     const obstacleWidth = 20 + Math.random() * 15 // 20-35px wide
     const obstacleHeight = 50 + Math.random() * 20 // 50-70px high
-    
+
     return {
       x: spawnX,
       y: GROUND_Y - obstacleHeight,
@@ -157,19 +158,22 @@ export class ObstacleEffects {
    */
   static handleWaterHoleCollision(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     // Water hole causes drowning
     if (!gameState.horse.isDrowning) {
       const horse = { ...gameState.horse }
       horse.isDrowning = true
       horse.drowningTimer = 0
       updates.horse = horse
-      
+
       soundSystem.playSound('waterSplash', 0.9)
       // Create water splash effect
-      particleSystem.createWaterSplash(gameState.horse.x + 40, gameState.horse.y + 40)
+      particleSystem.createWaterSplash(
+        gameState.horse.x + 40,
+        gameState.horse.y + 40
+      )
     }
-    
+
     return updates
   }
 
@@ -178,19 +182,24 @@ export class ObstacleEffects {
    */
   static handleLowBarrierCollision(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     // Low barrier only causes game over if not ducking
     if (!gameState.horse.isDucking) {
       updates.gameRunning = false
-      
+
       soundSystem.playSound('gameOver', 0.8)
       soundSystem.playSound('particleExplosion', 0.6)
       soundSystem.stopBackgroundMusic()
-      
+
       // Create brown dust explosion for hitting barrier
-      particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 10, '#8B4513')
+      particleSystem.createExplosion(
+        gameState.horse.x + 40,
+        gameState.horse.y + 40,
+        10,
+        '#8B4513'
+      )
     }
-    
+
     return updates
   }
 
@@ -199,17 +208,22 @@ export class ObstacleEffects {
    */
   static handleHighBarrierCollision(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     // High barriers always cause game over
     updates.gameRunning = false
-    
+
     soundSystem.playSound('gameOver', 0.8)
     soundSystem.playSound('particleExplosion', 0.6)
     soundSystem.stopBackgroundMusic()
-    
+
     // Create red explosion effect
-    particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 12, '#FF4444')
-    
+    particleSystem.createExplosion(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40,
+      12,
+      '#FF4444'
+    )
+
     return updates
   }
 
@@ -218,17 +232,22 @@ export class ObstacleEffects {
    */
   static handleObstacleCollision(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
-    
+
     // Traditional obstacles always cause game over
     updates.gameRunning = false
-    
+
     soundSystem.playSound('gameOver', 0.8)
     soundSystem.playSound('particleExplosion', 0.6)
     soundSystem.stopBackgroundMusic()
-    
+
     // Create red explosion effect
-    particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 12, '#FF4444')
-    
+    particleSystem.createExplosion(
+      gameState.horse.x + 40,
+      gameState.horse.y + 40,
+      12,
+      '#FF4444'
+    )
+
     return updates
   }
 }

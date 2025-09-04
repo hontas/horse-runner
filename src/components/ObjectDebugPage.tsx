@@ -13,9 +13,12 @@ interface ObjectDebugPageProps {
   onClose: () => void
 }
 
-export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => {
+export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({
+  onClose,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [selectedCategory, setSelectedCategory] = useState<ObjectCategory>('collectibles')
+  const [selectedCategory, setSelectedCategory] =
+    useState<ObjectCategory>('collectibles')
 
   // Generate sample objects for each category
   const generateSampleObjects = (category: ObjectCategory): GameObject[] => {
@@ -32,19 +35,19 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
         x += spacing
         objects.push(CollectibleObjects.generateFruit(x))
         x += spacing
-        
+
         // Generate stars
         objects.push(CollectibleObjects.generateStar(x))
         x += spacing
         objects.push(CollectibleObjects.generateStar(x))
         x += spacing
-        
+
         // Generate keys
         objects.push(CollectibleObjects.generateKey(x))
         x += spacing
         objects.push(CollectibleObjects.generateKey(x))
         x += spacing
-        
+
         // Generate mushrooms
         objects.push(CollectibleObjects.generateMushroom(x))
         x += spacing
@@ -57,19 +60,19 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
         x += spacing
         objects.push(ObstacleObjects.generateWaterHole(x))
         x += spacing
-        
+
         // Low barriers
         objects.push(ObstacleObjects.generateLowBarrier(x))
         x += spacing
         objects.push(ObstacleObjects.generateLowBarrier(x))
         x += spacing
-        
+
         // High barriers
         objects.push(ObstacleObjects.generateHighBarrier(x))
         x += spacing
         objects.push(ObstacleObjects.generateHighBarrier(x))
         x += spacing
-        
+
         // Traditional obstacles
         objects.push(ObstacleObjects.generateObstacle(x))
         x += spacing
@@ -84,23 +87,13 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
         x += spacing
         objects.push(TerrainObjects.generatePlatform(x, 3))
         x += spacing
-        
+
         // Floating platforms
         objects.push(TerrainObjects.generateFloatingPlatform(x))
         x += spacing
         objects.push(TerrainObjects.generateFloatingPlatform(x))
         x += spacing
-        
-        // Ramps
-        objects.push(TerrainObjects.generateRamp(x))
-        x += spacing
-        
-        // Bridges
-        objects.push(TerrainObjects.generateBridge(x))
-        x += spacing
-        
-        // Log piles
-        objects.push(TerrainObjects.generateLogPile(x))
+
         break
     }
 
@@ -132,20 +125,24 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
 
     // Generate and draw objects
     const objects = generateSampleObjects(selectedCategory)
-    objects.forEach(obj => {
+    objects.forEach((obj) => {
       drawGameObject(ctx, obj)
-      
+
       // Draw object info
       ctx.save()
       ctx.fillStyle = 'black'
       ctx.font = '12px Arial'
       ctx.textAlign = 'center'
       ctx.fillText(obj.type, obj.x + obj.width / 2, obj.y - 15)
-      
+
       // Draw object dimensions
       ctx.font = '10px Arial'
       ctx.fillStyle = 'gray'
-      ctx.fillText(`${obj.width}x${obj.height}`, obj.x + obj.width / 2, obj.y - 5)
+      ctx.fillText(
+        `${obj.width}x${obj.height}`,
+        obj.x + obj.width / 2,
+        obj.y - 5
+      )
       ctx.restore()
     })
 
@@ -153,7 +150,7 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
     ctx.save()
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
     ctx.lineWidth = 1
-    
+
     // Vertical grid lines
     for (let x = 0; x < canvas.width; x += 50) {
       ctx.beginPath()
@@ -161,7 +158,7 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
       ctx.lineTo(x, canvas.height)
       ctx.stroke()
     }
-    
+
     // Horizontal grid lines
     for (let y = 0; y < canvas.height; y += 50) {
       ctx.beginPath()
@@ -169,7 +166,7 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
       ctx.lineTo(canvas.width, y)
       ctx.stroke()
     }
-    
+
     // Highlight ground line
     ctx.strokeStyle = 'red'
     ctx.lineWidth = 2
@@ -177,9 +174,8 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
     ctx.moveTo(0, GROUND_Y)
     ctx.lineTo(canvas.width, GROUND_Y)
     ctx.stroke()
-    
-    ctx.restore()
 
+    ctx.restore()
   }, [selectedCategory])
 
   return (
@@ -196,7 +192,9 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
         <select
           id="category-select"
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as ObjectCategory)}
+          onChange={(e) =>
+            setSelectedCategory(e.target.value as ObjectCategory)
+          }
           className={styles.categorySelect}
         >
           <option value="collectibles">Collectibles</option>
@@ -217,12 +215,16 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({ onClose }) => 
       <div className={styles.info}>
         <h3>Category: {selectedCategory}</h3>
         <p>
-          {selectedCategory === 'collectibles' && 'Fruits (🍎), Stars (⭐), Keys (🗝️), Mushrooms (🍄) - Items that can be collected for points or effects.'}
-          {selectedCategory === 'obstacles' && 'Water Holes, Barriers, Obstacles - Items that can cause game over or special effects.'}
-          {selectedCategory === 'terrain' && 'Platforms, Ramps, Bridges, Log Piles - Rideable terrain and environmental obstacles.'}
+          {selectedCategory === 'collectibles' &&
+            'Fruits (🍎), Stars (⭐), Keys (🗝️), Mushrooms (🍄) - Items that can be collected for points or effects.'}
+          {selectedCategory === 'obstacles' &&
+            'Water Holes, Barriers, Obstacles - Items that can cause game over or special effects.'}
+          {selectedCategory === 'terrain' &&
+            'Platforms - Rideable terrain and environmental obstacles.'}
         </p>
         <p className={styles.instructions}>
-          Red line indicates ground level (Y = {GROUND_Y}). Grid squares are 50x50 pixels.
+          Red line indicates ground level (Y = {GROUND_Y}). Grid squares are
+          50x50 pixels.
         </p>
       </div>
     </div>
