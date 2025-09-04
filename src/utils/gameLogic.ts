@@ -1,4 +1,5 @@
 import { GameObject, GameState } from '../types/gameTypes'
+import { particleSystem } from './particleSystem'
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
@@ -314,18 +315,24 @@ export const handleCollisionEffects = (
       if (updates.speedBoost && updates.speedBoost > 0) {
         soundSystem.playSound('speedBoost', 0.4)
       }
+      // Create red collect particle effect for apples
+      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#FF6B47')
       break
     }
 
     case 'star':
       updates.score = gameState.score + 50
       soundSystem.playSound('star', 0.8)
+      // Create golden sparkle effect
+      particleSystem.createSparkleEffect(obj.x + obj.width/2, obj.y + obj.height/2)
       break
 
     case 'key':
       updates.keys = gameState.keys + 1
       updates.score = gameState.score + 25
       soundSystem.playSound('collect', 0.7)
+      // Create yellow collect particle effect
+      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#FFD700')
       break
 
     case 'mushroom': {
@@ -337,6 +344,8 @@ export const handleCollisionEffects = (
         gameState.speedBoost - scaledReduction
       )
       soundSystem.playSound('collect', 0.4) // Quieter sound to indicate it's not as good as fruit
+      // Create purple negative effect
+      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#8B008B')
       break
     }
 
@@ -345,7 +354,10 @@ export const handleCollisionEffects = (
       // These obstacles always cause game over
       updates.gameRunning = false
       soundSystem.playSound('gameOver', 0.8)
+      soundSystem.playSound('particleExplosion', 0.6)
       soundSystem.stopBackgroundMusic()
+      // Create red explosion effect
+      particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 12, '#FF4444')
       break
 
     case 'waterHole':
@@ -356,6 +368,8 @@ export const handleCollisionEffects = (
         horse.drowningTimer = 0
         updates.horse = horse
         soundSystem.playSound('waterSplash', 0.9)
+        // Create water splash effect
+        particleSystem.createWaterSplash(gameState.horse.x + 40, gameState.horse.y + 40)
       }
       break
 
@@ -364,7 +378,10 @@ export const handleCollisionEffects = (
       if (!gameState.horse.isDucking) {
         updates.gameRunning = false
         soundSystem.playSound('gameOver', 0.8)
+        soundSystem.playSound('particleExplosion', 0.6)
         soundSystem.stopBackgroundMusic()
+        // Create brown dust explosion for hitting barrier
+        particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 10, '#8B4513')
       }
       break
 

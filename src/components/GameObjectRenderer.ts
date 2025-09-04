@@ -157,7 +157,10 @@ const drawPlatform = (ctx: CanvasRenderingContext2D, obj: GameObject): void => {
 /**
  * Draw floating platform terrain (same style as ground platforms but floating in air)
  */
-const drawFloatingPlatform = (ctx: CanvasRenderingContext2D, obj: GameObject): void => {
+const drawFloatingPlatform = (
+  ctx: CanvasRenderingContext2D,
+  obj: GameObject
+): void => {
   // Use same colors as regular platforms but slightly lighter for floating effect
   const colors = ['#A0938B', '#B0622D', '#DD953F'] // Slightly lighter shades
   const level = obj.platformLevel || 1
@@ -211,7 +214,7 @@ export const drawUI = (
   distance: number,
   speed: number,
   keys: number,
-  speedFactor: number
+  _speedFactor: number
 ): void => {
   // Reset text alignment for UI
   ctx.textAlign = 'left'

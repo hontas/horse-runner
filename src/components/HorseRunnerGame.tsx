@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useHorseRenderer } from './Horse'
 import { soundSystem } from '../utils/soundSystem'
+import { particleSystem } from '../utils/particleSystem'
 import { useTouchControls } from '../hooks/useTouchControls'
 import {
   checkCollision,
@@ -184,6 +185,9 @@ const HorseRunnerGame: React.FC = () => {
       },
     }))
     lastSpawnX.current = GAME_WIDTH + 600
+
+    // Clear any existing particles
+    particleSystem.clear()
 
     // Start background music
     soundSystem.startBackgroundMusic()
@@ -425,6 +429,9 @@ const HorseRunnerGame: React.FC = () => {
               if (!prev.horse.isBlocked) {
                 newState.speed = Math.max(MIN_SPEED, newState.speed * 0.7)
                 soundSystem.playSound('wallHit', 0.8)
+                soundSystem.playSound('dustCloud', 0.4)
+                // Create dust cloud effect when hitting platform wall
+                particleSystem.createDustCloud(newState.horse.x + 60, newState.horse.y + 20)
               }
             }
           }
@@ -518,6 +525,9 @@ const HorseRunnerGame: React.FC = () => {
         if (!newState.horse.isBlocked) {
           newState.distance += Math.floor(newState.speed / 2)
         }
+
+        // Update particle system
+        particleSystem.update()
 
         // Check collisions
         newState.gameObjects.forEach((obj) => {
@@ -621,6 +631,9 @@ const HorseRunnerGame: React.FC = () => {
           drawGameObject(ctx, obj)
         }
       })
+
+      // Draw particle effects
+      particleSystem.render(ctx)
     }
 
     // Draw UI

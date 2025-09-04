@@ -267,6 +267,26 @@ class SoundSystem {
       }
       this.sounds.set('wallHit', wallHitBuffer)
 
+      // Particle explosion sound - sharp burst
+      const explosionBuffer = await this.generateNoiseBuffer(0.3)
+      const explosionData = explosionBuffer.getChannelData(0)
+      for (let i = 0; i < explosionData.length; i++) {
+        const t = i / this.audioContext.sampleRate
+        const envelope = Math.exp(-t * 12) // Very sharp decay
+        explosionData[i] *= envelope * 1.5
+      }
+      this.sounds.set('particleExplosion', explosionBuffer)
+
+      // Dust cloud sound - soft poof
+      const dustBuffer = await this.generateNoiseBuffer(0.4)
+      const dustData = dustBuffer.getChannelData(0)
+      for (let i = 0; i < dustData.length; i++) {
+        const t = i / this.audioContext.sampleRate
+        const envelope = Math.exp(-t * 6) // Moderate decay
+        dustData[i] *= envelope * 0.8 // Softer than explosion
+      }
+      this.sounds.set('dustCloud', dustBuffer)
+
       // Background music - simple chord progression
       await this.generateBackgroundMusic()
 
