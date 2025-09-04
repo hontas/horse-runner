@@ -2,6 +2,7 @@ import { GameObject } from '../types/gameTypes'
 import { CollectibleRenderer } from '../objects/collectibles'
 import { ObstacleRenderer } from '../objects/obstacles'
 import { TerrainRenderer } from '../objects/terrain'
+import * as colors from '../constants/colors'
 
 /**
  * Renders a single game object on the canvas
@@ -73,18 +74,18 @@ export const drawBackground = (
   distance: number
 ): void => {
   // Clear canvas with sky color
-  ctx.fillStyle = '#87CEEB'
+  ctx.fillStyle = colors.sky.default
   ctx.fillRect(0, 0, gameWidth, gameHeight)
 
   // Draw clouds (medium parallax)
   drawClouds(ctx, gameWidth, gameHeight, distance * 0.3)
 
   // Draw ground
-  ctx.fillStyle = '#A0522D'
+  ctx.fillStyle = colors.terrain.medium
   ctx.fillRect(0, groundY, gameWidth, gameHeight - groundY)
 
   // Draw grass
-  ctx.fillStyle = '#228B22'
+  ctx.fillStyle = colors.grass.dark
   ctx.fillRect(0, groundY - 10, gameWidth, 10)
 }
 

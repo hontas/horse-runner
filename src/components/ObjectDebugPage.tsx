@@ -6,6 +6,7 @@ import { ObstacleObjects } from '../objects/obstacles'
 import { TerrainObjects } from '../objects/terrain'
 import { GROUND_Y } from '../constants/gameConstants'
 import styles from './ObjectDebugPage.module.css'
+import * as colors from '../constants/colors'
 
 type ObjectCategory = 'collectibles' | 'obstacles' | 'terrain'
 
@@ -112,15 +113,15 @@ export const ObjectDebugPage: React.FC<ObjectDebugPageProps> = ({
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     // Draw background
-    ctx.fillStyle = '#87CEEB' // Sky
+    ctx.fillStyle = colors.sky.default // Sky
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // Draw ground
-    ctx.fillStyle = '#A0522D' // Lighter dirt
+    ctx.fillStyle = colors.terrain.medium // Lighter dirt
     ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y)
 
     // Draw grass
-    ctx.fillStyle = '#228B22'
+    ctx.fillStyle = colors.grass.dark
     ctx.fillRect(0, GROUND_Y - 10, canvas.width, 10)
 
     // Generate and draw objects

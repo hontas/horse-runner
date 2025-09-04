@@ -8,3 +8,7 @@ export const grass = {
   dark: '#228B22',
   light: '#9ACD32',
 }
+
+export const sky = {
+  default: '#87CEEB',
+}
