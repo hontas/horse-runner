@@ -111,7 +111,10 @@ export class GameObjectsManager {
            type === 'obstacle' || 
            type === 'lowBarrier' || 
            type === 'highBarrier' ||
-           type === 'floatingPlatform'
+           type === 'floatingPlatform' ||
+           type === 'ramp' ||
+           type === 'bridge' ||
+           type === 'logPile'
   }
 
   private isForegroundObject(type: GameObject['type']): boolean {

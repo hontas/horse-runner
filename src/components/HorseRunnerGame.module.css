@@ -579,3 +579,42 @@
     font-size: 20px;
   }
 }
+
+/* Debug Button - Only visible in development */
+.debugButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #ff6b47, #ff4444);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: 
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.debugButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 71, 0.4);
+}
+
+.debugButton:active {
+  transform: translateY(0);
+}
+
+/* Hide debug button on mobile for cleaner interface */
+@media (max-width: 768px) {
+  .debugButton {
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+}

@@ -1,12 +1,11 @@
 import { GameObject, GameState } from '../types/gameTypes'
-import { particleSystem } from './particleSystem'
 import { ObjectSpawner } from './objectSpawner'
+import { CollectibleEffects } from '../objects/collectibles'
+import { ObstacleEffects } from '../objects/obstacles'
+import { TerrainEffects } from '../objects/terrain'
 import {
   GAME_WIDTH,
   GROUND_Y,
-  FRUIT_SPEED_BOOST_BASE,
-  FRUIT_SPEED_BOOST_MAX,
-  MUSHROOM_SPEED_REDUCTION,
   MIN_OBSTACLE_SPACING,
   MAX_OBSTACLE_SPACING,
 } from '../constants/gameConstants'
@@ -37,7 +36,7 @@ export const spawnNewObjects = (
   if (rightmostX < GAME_WIDTH + 100) {
     // Generate new objects with dynamic spacing using the weighted spawner
     const spawnX = Math.max(rightmostX + spacing, GAME_WIDTH + 50)
-    const newObjects = objectSpawner.generateObjects(spawnX)
+    const newObjects = objectSpawner.generateObjects(spawnX, speedFactor)
     
     return [...gameObjects, ...newObjects]
   }
@@ -80,104 +79,42 @@ export const createInitialObjects = (): GameObject[] => {
  */
 export const handleCollisionEffects = (
   gameState: GameState,
-  obj: GameObject,
-  soundSystem: {
-    playSound: (sound: string, volume: number) => void
-    stopBackgroundMusic: () => void
-  }
+  obj: GameObject
 ): Partial<GameState> => {
-  const updates: Partial<GameState> = {}
-
   switch (obj.type) {
-    case 'fruit': {
-      updates.score = gameState.score + 10
-      // Fixed speed boost amount - no longer scales with speed factor
-      const boostAmount = FRUIT_SPEED_BOOST_BASE
-      updates.speedBoost = Math.min(
-        FRUIT_SPEED_BOOST_MAX,
-        gameState.speedBoost + boostAmount
-      )
-      soundSystem.playSound('collect', 0.6)
-      if (updates.speedBoost && updates.speedBoost > 0) {
-        soundSystem.playSound('speedBoost', 0.4)
-      }
-      // Create red collect particle effect for apples
-      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#FF6B47')
-      break
-    }
-
+    // Collectibles
+    case 'fruit':
+      return CollectibleEffects.handleFruitCollection(gameState)
     case 'star':
-      updates.score = gameState.score + 50
-      soundSystem.playSound('star', 0.8)
-      // Create golden sparkle effect
-      particleSystem.createSparkleEffect(obj.x + obj.width/2, obj.y + obj.height/2)
-      break
-
+      return CollectibleEffects.handleStarCollection(gameState)
     case 'key':
-      updates.keys = gameState.keys + 1
-      updates.score = gameState.score + 25
-      soundSystem.playSound('collect', 0.7)
-      // Create yellow collect particle effect
-      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#FFD700')
-      break
+      return CollectibleEffects.handleKeyCollection(gameState)
+    case 'mushroom':
+      return CollectibleEffects.handleMushroomCollection(gameState)
 
-    case 'mushroom': {
-      // No score - mushrooms are purely negative
-      // Fixed speed reduction - no longer scales with speed factor
-      updates.speedBoost = Math.max(
-        -2.0, // Allow deeper slowdown but it will recover naturally over time
-        gameState.speedBoost - MUSHROOM_SPEED_REDUCTION
-      )
-      soundSystem.playSound('collect', 0.4) // Quieter sound to indicate it's not as good as fruit
-      // Create purple negative effect
-      particleSystem.createCollectEffect(obj.x + obj.width/2, obj.y + obj.height/2, '#8B008B')
-      break
-    }
-
-    case 'obstacle':
-    case 'highBarrier':
-      // These obstacles always cause game over
-      updates.gameRunning = false
-      soundSystem.playSound('gameOver', 0.8)
-      soundSystem.playSound('particleExplosion', 0.6)
-      soundSystem.stopBackgroundMusic()
-      // Create red explosion effect
-      particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 12, '#FF4444')
-      break
-
+    // Obstacles
     case 'waterHole':
-      // Water hole causes drowning
-      if (!gameState.horse.isDrowning) {
-        const horse = { ...gameState.horse }
-        horse.isDrowning = true
-        horse.drowningTimer = 0
-        updates.horse = horse
-        soundSystem.playSound('waterSplash', 0.9)
-        // Create water splash effect
-        particleSystem.createWaterSplash(gameState.horse.x + 40, gameState.horse.y + 40)
-      }
-      break
-
+      return ObstacleEffects.handleWaterHoleCollision(gameState)
     case 'lowBarrier':
-      // Low barrier only causes game over if not ducking
-      if (!gameState.horse.isDucking) {
-        updates.gameRunning = false
-        soundSystem.playSound('gameOver', 0.8)
-        soundSystem.playSound('particleExplosion', 0.6)
-        soundSystem.stopBackgroundMusic()
-        // Create brown dust explosion for hitting barrier
-        particleSystem.createExplosion(gameState.horse.x + 40, gameState.horse.y + 40, 10, '#8B4513')
-      }
-      break
+      return ObstacleEffects.handleLowBarrierCollision(gameState)
+    case 'highBarrier':
+      return ObstacleEffects.handleHighBarrierCollision(gameState)
+    case 'obstacle':
+      return ObstacleEffects.handleObstacleCollision(gameState)
 
+    // Terrain
     case 'platform':
-      // Platforms don't cause game over, they're just terrain
-      break
-
+      return TerrainEffects.handlePlatformCollision(gameState)
     case 'floatingPlatform':
-      // Floating platforms don't cause game over, they're just terrain
-      break
-  }
+      return TerrainEffects.handleFloatingPlatformCollision(gameState)
+    case 'ramp':
+      return TerrainEffects.handleRampCollision(gameState)
+    case 'bridge':
+      return TerrainEffects.handleBridgeCollision(gameState)
+    case 'logPile':
+      return TerrainEffects.handleLogPileCollision(gameState)
 
-  return updates
+    default:
+      return {}
+  }
 }

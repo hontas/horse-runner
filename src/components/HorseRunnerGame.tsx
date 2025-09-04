@@ -26,6 +26,7 @@ import {
   ControlsInfo,
 } from './GameOverlays'
 import { GameState, HighScoreState } from '../types/gameTypes'
+import { ObjectDebugPage } from './ObjectDebugPage'
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
@@ -80,6 +81,9 @@ const HorseRunnerGame: React.FC = () => {
     gameStarted: false,
     gamePaused: false,
   })
+
+  // Debug state (dev only)
+  const [showDebugPage, setShowDebugPage] = useState(false)
 
   // Horse renderer with animations
   const { drawHorse, isImageLoaded } = useHorseRenderer({
@@ -478,16 +482,16 @@ const HorseRunnerGame: React.FC = () => {
           }
 
           if (!obj.collected && hasCollision) {
-            // Don't mark platforms or water holes as collected - they're permanent terrain
-            if (obj.type !== 'platform' && obj.type !== 'waterHole' && obj.type !== 'floatingPlatform') {
+            // Don't mark terrain objects as collected - they're permanent terrain
+            const terrainTypes = ['platform', 'waterHole', 'floatingPlatform', 'ramp', 'bridge', 'logPile']
+            if (!terrainTypes.includes(obj.type)) {
               obj.collected = true
             }
 
             const currentState = updater.getUpdatedState()
             const collisionUpdates = handleCollisionEffects(
               currentState,
-              obj,
-              soundSystem
+              obj
             )
             
             // Apply collision updates
@@ -637,6 +641,22 @@ const HorseRunnerGame: React.FC = () => {
         )}
 
       <ControlsInfo />
+
+      {/* Debug Button - Only visible in development mode */}
+      {import.meta.env.DEV && (
+        <button
+          className={styles.debugButton}
+          onClick={() => setShowDebugPage(true)}
+          title="Open Object Debug Viewer (Dev Only)"
+        >
+          🐛 Debug Objects
+        </button>
+      )}
+
+      {/* Debug Page Overlay */}
+      {showDebugPage && (
+        <ObjectDebugPage onClose={() => setShowDebugPage(false)} />
+      )}
     </div>
   )
 }

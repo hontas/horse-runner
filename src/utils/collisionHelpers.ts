@@ -75,3 +75,37 @@ export const checkPlatformWallCollision = (
 
   return hitsWall
 }
+
+/**
+ * Check if horse is on a ramp and calculate the appropriate ground level
+ */
+export const checkRampLanding = (
+  horse: Horse,
+  ramp: GameObject
+): { isOnRamp: boolean; rampY?: number } => {
+  const horseHeight = horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
+  const horseBottom = horse.y + horseHeight
+  const horseCenterX = horse.x + HORSE_WIDTH / 2
+
+  // Check if horse is horizontally within the ramp
+  const horizontalOverlap = horseCenterX >= ramp.x && horseCenterX <= ramp.x + ramp.width
+
+  if (!horizontalOverlap) {
+    return { isOnRamp: false }
+  }
+
+  // Calculate the Y position on the ramp slope at the horse's X position
+  const relativeX = horseCenterX - ramp.x // Horse position relative to ramp start
+  const rampSlope = ramp.rampSlope || 0
+  const rampTopY = ramp.y // Top of the ramp (left side)
+  const expectedRampY = rampTopY + (relativeX * rampSlope) // Y at this X position on slope
+
+  // Check if horse is close to the ramp surface (allow some tolerance for landing)
+  const tolerance = 15
+  const isOnRamp = horseBottom >= expectedRampY - tolerance && horseBottom <= expectedRampY + tolerance
+
+  return {
+    isOnRamp,
+    rampY: isOnRamp ? expectedRampY - horseHeight : undefined
+  }
+}

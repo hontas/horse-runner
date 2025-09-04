@@ -12,6 +12,7 @@ import {
 import {
   checkPlatformLanding,
   checkPlatformWallCollision,
+  checkRampLanding,
 } from './collisionHelpers'
 import { soundSystem } from './soundSystem'
 import { particleSystem } from './particleSystem'
@@ -39,8 +40,19 @@ export function updateHorsePhysics(
   let hitPlatformWall = false
 
   gameObjects.forEach((obj) => {
-    if ((obj.type === 'platform' || obj.type === 'floatingPlatform') && obj.isRideable) {
-      // Check if horse can land on platform
+    if (obj.type === 'ramp' && obj.isRideable) {
+      // Special handling for ramps - horse follows the slope
+      const rampResult = checkRampLanding(horse, obj)
+      if (rampResult.isOnRamp && rampResult.rampY !== undefined) {
+        updater.updateHorsePosition(undefined, rampResult.rampY, 0)
+        updater.updateHorseStates({
+          isJumping: false,
+          currentPlatformLevel: 0, // Ramps are at ground level
+        })
+        landedOnPlatform = true
+      }
+    } else if ((obj.type === 'platform' || obj.type === 'floatingPlatform' || obj.type === 'bridge') && obj.isRideable) {
+      // Standard platform/bridge handling
       if (checkPlatformLanding(horse, obj)) {
         const platformSurface = obj.y - (horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
         updater.updateHorsePosition(undefined, platformSurface, 0)
@@ -56,7 +68,7 @@ export function updateHorsePhysics(
         }
       }
 
-      // Check if horse hits platform wall
+      // Check if horse hits platform wall (not applicable to ramps)
       if (checkPlatformWallCollision(horse, obj)) {
         hitPlatformWall = true
         updater.updateHorseStates({ isBlocked: true })
