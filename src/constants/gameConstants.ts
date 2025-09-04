@@ -22,20 +22,20 @@ export const TAP_MAX_TIME = 300
 export const TAP_DUCK_DURATION = 500
 
 // Game spawn and timing
-export const INITIAL_SPEED = 4
+export const INITIAL_SPEED = 5
 export const MIN_SPEED = 1
 export const LANDING_THRESHOLD = 15 // pixels of tolerance for platform landing
 export const DROWNING_ANIMATION_DURATION = 1000
 export const DROWNING_BLOCK_DELAY = 200
 
 // Speed progression system
-export const FRUIT_SPEED_BOOST_BASE = 0.5 // Base speed boost from fruit (reduced from 1.5)
-export const FRUIT_SPEED_BOOST_MAX = 3 // Maximum speed boost (reduced from 6)
-export const MUSHROOM_SPEED_REDUCTION = 0.3 // How much mushrooms reduce speed boost
+export const FRUIT_SPEED_BOOST_BASE = 0.6 // Base speed boost from fruit - consistent amount
+export const FRUIT_SPEED_BOOST_MAX = 2.5 // Maximum speed boost for more impact
+export const MUSHROOM_SPEED_REDUCTION = 0.4 // How much mushrooms reduce speed - fixed amount
 export const MUSHROOM_SPAWN_CHANCE = 0.15 // 15% chance to spawn mushrooms (less frequent than fruit)
 export const KEY_SPAWN_CHANCE = 0.08 // 8% chance to spawn keys (rare collectible)
-export const SPEED_FACTOR_INCREASE_RATE = 0.0002 // How much speed factor increases per distance unit (reduced from 0.001)
-export const MAX_SPEED_FACTOR = 2.5 // Maximum speed multiplier (reduced from 3.0)
+export const SPEED_FACTOR_INCREASE_RATE = 0.0001 // Slower, more gradual progression
+export const MAX_SPEED_FACTOR = 2.2 // Higher maximum for more challenging late game
 export const MIN_OBSTACLE_SPACING = 150 // Minimum spacing between obstacles
 export const MAX_OBSTACLE_SPACING = 400 // Maximum spacing when speed is high
 

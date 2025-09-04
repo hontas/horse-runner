@@ -54,7 +54,17 @@ export const checkPlatformWallCollision = (
   const horseBottom = horse.y + horseHeight
   const platformTop = platform.y
 
-  // Check if horse is at platform level or below
+  // For floating platforms, only check wall collision if horse is at platform level
+  // This allows the horse to walk underneath floating platforms
+  if (platform.type === 'floatingPlatform') {
+    // Only check wall collision if horse is at or above platform level
+    const isAtPlatformLevel = horseBottom <= platformTop + 15 // Slightly larger buffer for floating platforms
+    if (!isAtPlatformLevel) {
+      return false // No collision if horse is below platform
+    }
+  }
+
+  // Check if horse is at platform level or below (for regular platforms)
   const atPlatformLevel = horseBottom > platformTop + 5 // 5px buffer
 
   // Check if horse hits the front wall of the platform

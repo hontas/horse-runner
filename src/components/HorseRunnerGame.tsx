@@ -3,17 +3,21 @@ import { useHorseRenderer } from './Horse'
 import { soundSystem } from '../utils/soundSystem'
 import { particleSystem } from '../utils/particleSystem'
 import { useTouchControls } from '../hooks/useTouchControls'
-import {
-  checkCollision,
-  checkPlatformLanding,
-  checkPlatformWallCollision,
-} from '../utils/collisionHelpers'
+import { checkCollision } from '../utils/collisionHelpers'
 import { drawBackground, drawUI, drawGameObject } from './GameObjectRenderer'
 import {
   createInitialObjects,
   spawnNewObjects,
   handleCollisionEffects,
 } from '../utils/gameLogic'
+import { GameStateUpdater } from '../utils/gameStateUpdater'
+import { GameObjectsManager } from '../utils/gameObjectsManager'
+import {
+  updateHorsePhysics,
+  updateDrowningLogic,
+  updateGroundCollision,
+  updateBlockingState,
+} from '../utils/gamePhysics'
 import {
   StartScreen,
   PauseScreen,
@@ -29,15 +33,10 @@ import {
   HORSE_WIDTH,
   HORSE_HEIGHT,
   DUCK_HEIGHT,
-  GRAVITY,
   JUMP_FORCE,
   PLATFORM_HEIGHT,
   INITIAL_SPEED,
-  MIN_SPEED,
-  DROWNING_ANIMATION_DURATION,
-  DROWNING_BLOCK_DELAY,
   SPEED_FACTOR_INCREASE_RATE,
-  MAX_SPEED_FACTOR,
 } from '../constants/gameConstants'
 import {
   loadHighScores,
@@ -51,6 +50,7 @@ const HorseRunnerGame: React.FC = () => {
   const gameLoopRef = useRef<number>()
   const lastSpawnX = useRef<number>(GAME_WIDTH)
   const keysPressed = useRef<Set<string>>(new Set())
+  const objectsManager = useRef(new GameObjectsManager())
 
   const [highScoreState, setHighScoreState] = useState<HighScoreState>(() =>
     loadHighScores()
@@ -386,167 +386,133 @@ const HorseRunnerGame: React.FC = () => {
           return prev
         }
 
-        const newState = { ...prev }
+        // Use efficient state updater
+        const updater = new GameStateUpdater(prev)
+        const objManager = objectsManager.current
 
-        // Update horse physics (skip if drowning)
-        newState.horse = { ...prev.horse }
-        if (!newState.horse.isDrowning) {
-          newState.horse.velocityY += GRAVITY
-          newState.horse.y += newState.horse.velocityY
-        }
-
-        // Platform and ground collision detection
-        let landedOnPlatform = false
-        let hitPlatformWall = false
-
-        // Check platform collisions first
-        newState.gameObjects.forEach((obj) => {
-          if (obj.type === 'platform' && obj.isRideable) {
-            // Check if horse can land on platform
-            if (checkPlatformLanding(newState.horse, obj)) {
-              const platformSurface =
-                obj.y - (newState.horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
-              newState.horse.y = platformSurface
-              newState.horse.velocityY = 0
-              newState.horse.isJumping = false
-              newState.horse.currentPlatformLevel = obj.platformLevel || 0
-              landedOnPlatform = true
-
-              // Play platform landing sound (only once per landing)
-              if (
-                prev.horse.currentPlatformLevel !== (obj.platformLevel || 0)
-              ) {
-                soundSystem.playSound('platformLand', 0.6)
-              }
-            }
-
-            // Check if horse hits platform wall
-            if (checkPlatformWallCollision(newState.horse, obj)) {
-              hitPlatformWall = true
-              newState.horse.isBlocked = true
-
-              // Lose speed when hitting wall (only once)
-              if (!prev.horse.isBlocked) {
-                newState.speed = Math.max(MIN_SPEED, newState.speed * 0.7)
-                soundSystem.playSound('wallHit', 0.8)
-                soundSystem.playSound('dustCloud', 0.4)
-                // Create dust cloud effect when hitting platform wall
-                particleSystem.createDustCloud(newState.horse.x + 60, newState.horse.y + 20)
-              }
-            }
-          }
-        })
-
-        // Check if horse has cleared the blocking platform
-        if (
-          prev.horse.isBlocked &&
-          !hitPlatformWall &&
-          !newState.horse.isDrowning
-        ) {
-          newState.horse.isBlocked = false
-        }
+        // Update horse physics
+        const { landedOnPlatform, hitPlatformWall } = updateHorsePhysics(
+          updater,
+          prev.horse,
+          objManager.getPlatformObjects(),
+          prev.speed
+        )
 
         // Handle drowning animation
-        if (newState.horse.isDrowning) {
-          newState.horse.drowningTimer += 16 // Roughly 16ms per frame at 60fps
+        updateDrowningLogic(updater, prev.horse)
 
-          // Stop forward motion after horse has moved into the water
-          if (
-            newState.horse.drowningTimer >= DROWNING_BLOCK_DELAY &&
-            !newState.horse.isBlocked
-          ) {
-            newState.horse.isBlocked = true
-          }
+        // Ground collision detection
+        updateGroundCollision(updater, prev.horse, landedOnPlatform)
 
-          // Sink the horse into the water over time
-          const sinkAmount =
-            (newState.horse.drowningTimer / DROWNING_ANIMATION_DURATION) * 60
-          newState.horse.y = GROUND_Y - HORSE_HEIGHT + sinkAmount
+        // Update blocking state
+        updateBlockingState(updater, prev.horse, hitPlatformWall)
 
-          // End game after drowning animation completes
-          if (newState.horse.drowningTimer >= DROWNING_ANIMATION_DURATION) {
-            newState.gameRunning = false
-            soundSystem.stopBackgroundMusic()
-          }
-        }
+        // Progressive speed factor increase with higher cap for more challenging late game
+        const targetSpeedFactor = Math.min(2.2, 1.0 + prev.distance * SPEED_FACTOR_INCREASE_RATE)
+        updater.updateGameStats({ speedFactor: targetSpeedFactor })
 
-        // Ground collision (if not on a platform and not drowning)
-        if (!landedOnPlatform && !newState.horse.isDrowning) {
-          const targetGroundY =
-            GROUND_Y - (newState.horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT)
-          if (newState.horse.y >= targetGroundY) {
-            newState.horse.y = targetGroundY
-            newState.horse.velocityY = 0
-            newState.horse.isJumping = false
-            newState.horse.currentPlatformLevel = 0 // Back to ground level
-          }
-        }
+        // Update speed with natural slowdown recovery (but pause when horse is blocked)
+        let newSpeed = prev.speed
+        let newSpeedBoost = prev.speedBoost
+        const currentHorse = updater.getCurrentHorse()
 
-        // Update speed factor based on distance (progressive difficulty)
-        newState.speedFactor = Math.min(
-          MAX_SPEED_FACTOR,
-          1.0 + newState.distance * SPEED_FACTOR_INCREASE_RATE
-        )
-
-        // Update speed
-        if (newState.speedBoost > 0) {
-          newState.speedBoost -= 0.02
-          newState.speed =
-            (newState.baseSpeed + newState.speedBoost) * newState.speedFactor
-        } else {
-          newState.speed = Math.max(2, newState.speed - 0.005)
-          // Apply speed factor to base speed
-          if (newState.speed <= newState.baseSpeed) {
-            newState.speed = newState.baseSpeed * newState.speedFactor
+        if (!currentHorse.isBlocked) {
+          // Only update speed/boost when horse is not blocked
+          if (prev.speedBoost > 0) {
+            // Positive speed boost (from apples) - makes horse faster
+            newSpeedBoost = prev.speedBoost - 0.03
+            newSpeed = (prev.baseSpeed + newSpeedBoost * 0.8) * targetSpeedFactor
+          } else if (prev.speedBoost < 0) {
+            // Negative speed effects (from mushrooms) - makes horse slower, recovers over time
+            newSpeedBoost = Math.min(0, prev.speedBoost + 0.01) // Gradual recovery from slowdowns
+            newSpeed = Math.max(prev.baseSpeed * 0.6, (prev.baseSpeed + newSpeedBoost) * targetSpeedFactor)
+          } else {
+            // No speed effects - natural deceleration
+            newSpeed = Math.max(prev.baseSpeed * 0.8, prev.speed - 0.005)
+            // Apply speed factor to maintain base difficulty progression
+            if (newSpeed <= prev.baseSpeed) {
+              newSpeed = prev.baseSpeed * targetSpeedFactor
+            }
           }
         }
+        // If horse is blocked, speed and speedBoost remain unchanged
+        updater.updateGameStats({ speed: newSpeed, speedBoost: newSpeedBoost })
 
-        // Move all objects left and update them (only if not blocked)
-        if (!newState.horse.isBlocked) {
-          newState.gameObjects = newState.gameObjects.map((obj) => ({
-            ...obj,
-            x: obj.x - newState.speed,
-          }))
-        } else {
-          // When blocked, objects don't move - horse stops completely
-          newState.gameObjects = newState.gameObjects.map((obj) => ({ ...obj }))
-        }
+        // Update game objects efficiently
+        let updatedObjects = objManager.updateObjects(prev.gameObjects, newSpeed, currentHorse.isBlocked)
 
         // Spawn new objects and remove off-screen ones
-        newState.gameObjects = spawnNewObjects(
-          newState.gameObjects,
-          newState.speedFactor
-        )
-        newState.gameObjects = newState.gameObjects.filter(
-          (obj) => obj.x > -100
-        )
+        updatedObjects = spawnNewObjects(updatedObjects, targetSpeedFactor)
+        updater.updateGameObjects(updatedObjects)
 
         // Update distance (only if not blocked by terrain)
-        if (!newState.horse.isBlocked) {
-          newState.distance += Math.floor(newState.speed / 2)
+        if (!currentHorse.isBlocked) {
+          updater.updateGameStats({ distance: prev.distance + Math.floor(newSpeed / 2) })
         }
 
         // Update particle system
         particleSystem.update()
 
-        // Check collisions
-        newState.gameObjects.forEach((obj) => {
-          if (!obj.collected && checkCollision(newState.horse, obj)) {
+        // Pre-filter objects for collision detection
+        objManager.updateVisibleObjects(updatedObjects)
+
+        // Check collisions with visible objects only
+        objManager.getVisibleObjects().forEach((obj) => {
+          let hasCollision = false
+          
+          // Special collision logic for floating platforms
+          if (obj.type === 'floatingPlatform') {
+            // For floating platforms, only collide if horse is at platform level or above
+            // This allows the horse to walk underneath
+            const horseHeight = currentHorse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
+            const horseBottom = currentHorse.y + horseHeight
+            const platformTop = obj.y
+            
+            // Only collide if horse is at or above platform level
+            if (horseBottom <= platformTop + 10) { // Small buffer for landing
+              hasCollision = checkCollision(currentHorse, obj)
+            }
+          } else {
+            // Standard collision for all other objects
+            hasCollision = checkCollision(currentHorse, obj)
+          }
+
+          if (!obj.collected && hasCollision) {
             // Don't mark platforms or water holes as collected - they're permanent terrain
-            if (obj.type !== 'platform' && obj.type !== 'waterHole') {
+            if (obj.type !== 'platform' && obj.type !== 'waterHole' && obj.type !== 'floatingPlatform') {
               obj.collected = true
             }
 
+            const currentState = updater.getUpdatedState()
             const collisionUpdates = handleCollisionEffects(
-              newState,
+              currentState,
               obj,
               soundSystem
             )
-            Object.assign(newState, collisionUpdates)
+            
+            // Apply collision updates
+            if (collisionUpdates.score !== undefined) {
+              updater.updateGameStats({ score: collisionUpdates.score })
+            }
+            if (collisionUpdates.keys !== undefined) {
+              updater.updateGameStats({ keys: collisionUpdates.keys })
+            }
+            if (collisionUpdates.speedBoost !== undefined) {
+              updater.updateGameStats({ speedBoost: collisionUpdates.speedBoost })
+            }
+            if (collisionUpdates.gameRunning !== undefined) {
+              updater.updateGameStats({ gameRunning: collisionUpdates.gameRunning })
+            }
+            if (collisionUpdates.horse) {
+              updater.updateHorseStates({
+                isDrowning: collisionUpdates.horse.isDrowning,
+                drowningTimer: collisionUpdates.horse.drowningTimer,
+              })
+            }
           }
         })
 
-        return newState
+        return updater.getUpdatedState()
       })
 
       // Continue the loop
@@ -578,25 +544,15 @@ const HorseRunnerGame: React.FC = () => {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Draw background
-    drawBackground(ctx, GAME_WIDTH, GAME_HEIGHT, GROUND_Y)
+    // Draw background with parallax elements
+    drawBackground(ctx, GAME_WIDTH, GAME_HEIGHT, GROUND_Y, gameState.distance)
 
     if (gameState.gameStarted) {
-      // Draw background objects first (water holes, platforms, obstacles)
-      gameState.gameObjects.forEach((obj) => {
-        if (obj.collected || obj.x + obj.width < 0 || obj.x > GAME_WIDTH + 50)
-          return
+      const objManager = objectsManager.current
 
-        // Only draw background objects that should appear behind the horse
-        if (
-          obj.type === 'waterHole' ||
-          obj.type === 'platform' ||
-          obj.type === 'obstacle' ||
-          obj.type === 'lowBarrier' ||
-          obj.type === 'highBarrier'
-        ) {
-          drawGameObject(ctx, obj)
-        }
+      // Draw background objects first (water holes, platforms, obstacles)
+      objManager.getBackgroundObjects().forEach((obj) => {
+        drawGameObject(ctx, obj)
       })
 
       // Draw horse with sprite animation
@@ -617,19 +573,8 @@ const HorseRunnerGame: React.FC = () => {
       }
 
       // Draw foreground objects (collectibles)
-      gameState.gameObjects.forEach((obj) => {
-        if (obj.collected || obj.x + obj.width < 0 || obj.x > GAME_WIDTH + 50)
-          return
-
-        // Only draw collectible objects that should appear in front of the horse
-        if (
-          obj.type === 'fruit' ||
-          obj.type === 'star' ||
-          obj.type === 'key' ||
-          obj.type === 'mushroom'
-        ) {
-          drawGameObject(ctx, obj)
-        }
+      objManager.getForegroundObjects().forEach((obj) => {
+        drawGameObject(ctx, obj)
       })
 
       // Draw particle effects
