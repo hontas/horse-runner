@@ -12,7 +12,6 @@ const GRAVITY = 0.8
 const JUMP_FORCE = -15
 const DUCK_HEIGHT = 20
 const PLATFORM_HEIGHT = 40 // Height of each platform level
-const MAX_PLATFORM_LEVELS = 3 // Maximum number of levels above ground
 
 interface GameObject {
   x: number
@@ -329,7 +328,10 @@ const HorseRunnerGame: React.FC = () => {
   ])
 
   // Collision detection
-  const checkCollision = (horse: any, obj: GameObject): boolean => {
+  const checkCollision = (
+    horse: GameState['horse'],
+    obj: GameObject
+  ): boolean => {
     const horseHeight = horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
     return (
       horse.x < obj.x + obj.width &&
@@ -340,7 +342,10 @@ const HorseRunnerGame: React.FC = () => {
   }
 
   // Platform collision detection - checks if horse can land on top of platform
-  const checkPlatformLanding = (horse: any, platform: GameObject): boolean => {
+  const checkPlatformLanding = (
+    horse: GameState['horse'],
+    platform: GameObject
+  ): boolean => {
     const horseHeight = horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
     const horseBottom = horse.y + horseHeight
     const platformTop = platform.y
@@ -362,7 +367,7 @@ const HorseRunnerGame: React.FC = () => {
 
   // Platform wall collision - checks if horse hits the side of a platform
   const checkPlatformWallCollision = (
-    horse: any,
+    horse: GameState['horse'],
     platform: GameObject
   ): boolean => {
     const horseHeight = horse.isDucking ? DUCK_HEIGHT : HORSE_HEIGHT
@@ -767,7 +772,7 @@ const HorseRunnerGame: React.FC = () => {
         ctx.textBaseline = 'middle'
         ctx.fillText('🗝️', obj.x + obj.width / 2, obj.y + obj.height / 2)
         break
-      case 'waterHole':
+      case 'waterHole': {
         // Draw deep water pit that extends to bottom of screen
 
         // Dark pit walls/edges
@@ -798,6 +803,7 @@ const HorseRunnerGame: React.FC = () => {
         ctx.fillStyle = '#AED6F1'
         ctx.fillRect(obj.x + 8, obj.y + 3 + waveOffset1, obj.width - 16, 2)
         break
+      }
       case 'lowBarrier':
         // Low barrier - hangs above ground, can duck under
         ctx.fillStyle = '#8B4513'
@@ -822,7 +828,7 @@ const HorseRunnerGame: React.FC = () => {
           }
         }
         break
-      case 'platform':
+      case 'platform': {
         // Multi-level terrain platforms
         const level = obj.platformLevel || 1
         const colors = ['#8B7D6B', '#A0522D', '#CD853F'] // Different shades for different levels
@@ -840,6 +846,7 @@ const HorseRunnerGame: React.FC = () => {
         ctx.fillRect(obj.x, obj.y, 3, obj.height) // Left edge
         ctx.fillRect(obj.x + obj.width - 3, obj.y, 3, obj.height) // Right edge
         break
+      }
     }
   }
 

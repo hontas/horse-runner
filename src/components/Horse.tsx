@@ -13,22 +13,30 @@ interface HorseProps {
 
 // Sprite frames for different animations (assuming 80x80 sprite sheet with 4 frames)
 const RUNNING_FRAMES = [
-  { x: 0, y: 0, width: 80, height: 80 },   // Frame 1
-  { x: 80, y: 0, width: 80, height: 80 },  // Frame 2
+  { x: 0, y: 0, width: 80, height: 80 }, // Frame 1
+  { x: 80, y: 0, width: 80, height: 80 }, // Frame 2
 ]
 
 const JUMPING_FRAME = { x: 160, y: 0, width: 80, height: 80 } // Frame 3
 const DUCKING_FRAME = { x: 240, y: 0, width: 80, height: 80 } // Frame 4
 
-const Horse: React.FC<HorseProps> = ({ x, y, width, height, isJumping, isDucking, isRunning }) => {
+const Horse: React.FC<HorseProps> = ({
+  // x,
+  // y,
+  // width,
+  // height,
+  isJumping,
+  isDucking,
+  isRunning,
+}) => {
   const imageRef = useRef<HTMLImageElement>()
-  
+
   // Running animation
   const runningAnimation = useSpriteAnimation({
     frames: RUNNING_FRAMES,
     frameRate: 8, // 8 frames per second for running
     loop: true,
-    autoStart: isRunning && !isJumping && !isDucking
+    autoStart: isRunning && !isJumping && !isDucking,
   })
 
   // Control animations based on state
@@ -49,49 +57,28 @@ const Horse: React.FC<HorseProps> = ({ x, y, width, height, isJumping, isDucking
     }
   }, [])
 
-  const getCurrentFrame = () => {
-    if (isDucking) return DUCKING_FRAME
-    if (isJumping) return JUMPING_FRAME
-    if (isRunning) return runningAnimation.currentFrame
-    return RUNNING_FRAMES[0] // Default frame
-  }
-
-  const drawHorse = (ctx: CanvasRenderingContext2D) => {
-    if (!imageRef.current) return
-
-    const frame = getCurrentFrame()
-    
-    // Draw sprite frame
-    ctx.drawImage(
-      imageRef.current,
-      frame.x, frame.y, frame.width, frame.height, // Source
-      x, y, width, height // Destination
-    )
-  }
-
-  // Expose draw function
-  React.useImperativeHandle(React.forwardRef(() => null), () => ({
-    draw: drawHorse
-  }))
-
   return null // This component doesn't render anything directly
 }
 
 // Export both the component and a hook for drawing
 export const useHorseRenderer = (horseProps: HorseProps) => {
   const imageRef = useRef<HTMLImageElement>()
-  
+
   // Running animation
   const runningAnimation = useSpriteAnimation({
     frames: RUNNING_FRAMES,
     frameRate: 8,
     loop: true,
-    autoStart: false
+    autoStart: false,
   })
 
   // Control animations
   useEffect(() => {
-    if (horseProps.isRunning && !horseProps.isJumping && !horseProps.isDucking) {
+    if (
+      horseProps.isRunning &&
+      !horseProps.isJumping &&
+      !horseProps.isDucking
+    ) {
       runningAnimation.play()
     } else {
       runningAnimation.pause()
@@ -118,11 +105,17 @@ export const useHorseRenderer = (horseProps: HorseProps) => {
     if (!imageRef.current) return
 
     const frame = getCurrentFrame()
-    
+
     ctx.drawImage(
       imageRef.current,
-      frame.x, frame.y, frame.width, frame.height,
-      horseProps.x, horseProps.y, horseProps.width, horseProps.height
+      frame.x,
+      frame.y,
+      frame.width,
+      frame.height,
+      horseProps.x,
+      horseProps.y,
+      horseProps.width,
+      horseProps.height
     )
   }
 

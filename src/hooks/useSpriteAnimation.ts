@@ -31,27 +31,28 @@ export const useSpriteAnimation = (options: SpriteAnimationOptions) => {
   useEffect(() => {
     if (isPlaying && options.frames.length > 0) {
       const frameDuration = 1000 / options.frameRate // ms per frame
-      
+
       const animate = () => {
         const now = performance.now()
         if (!startTimeRef.current) {
           startTimeRef.current = now
         }
-        
+
         const elapsed = now - startTimeRef.current
-        const frameIndex = Math.floor(elapsed / frameDuration) % options.frames.length
-        
+        const frameIndex =
+          Math.floor(elapsed / frameDuration) % options.frames.length
+
         setCurrentFrame(frameIndex)
-        
+
         if (options.loop !== false || frameIndex < options.frames.length - 1) {
           intervalRef.current = requestAnimationFrame(animate)
         } else {
           setIsPlaying(false)
         }
       }
-      
+
       intervalRef.current = requestAnimationFrame(animate)
-      
+
       return () => {
         if (intervalRef.current) {
           cancelAnimationFrame(intervalRef.current)
@@ -77,6 +78,6 @@ export const useSpriteAnimation = (options: SpriteAnimationOptions) => {
     pause,
     stop,
     reset,
-    isPlaying
+    isPlaying,
   }
 }
