@@ -147,6 +147,7 @@ src/
 - `npm run build` - Build for production (includes TypeScript check)
 - `npm run lint` - Run ESLint with TypeScript support
 - `npm run preview` - Preview production build
+- `npm test` - Run comprehensive checks (types, formatting, lint)
 
 ## 🎯 Key Technical Details
 
