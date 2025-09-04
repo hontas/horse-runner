@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useSpriteAnimation } from '../hooks/useSpriteAnimation'
+import horseSpriteUrl from '../assets/horse-sprite.svg?url'
 
 interface HorseProps {
   x: number
@@ -51,7 +52,7 @@ const Horse: React.FC<HorseProps> = ({
   // Load sprite image
   useEffect(() => {
     const img = new Image()
-    img.src = '/horse-sprite.svg'
+    img.src = horseSpriteUrl
     img.onload = () => {
       imageRef.current = img
     }
@@ -88,7 +89,7 @@ export const useHorseRenderer = (horseProps: HorseProps) => {
   // Load sprite image
   useEffect(() => {
     const img = new Image()
-    img.src = '/horse-sprite.svg'
+    img.src = horseSpriteUrl
     img.onload = () => {
       imageRef.current = img
     }
