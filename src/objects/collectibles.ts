@@ -212,9 +212,9 @@ export class CollectibleEffects {
   static handleMushroomCollection(gameState: GameState): Partial<GameState> {
     const updates: Partial<GameState> = {}
 
-    // No score - mushrooms are purely negative
-    // Fixed speed reduction - no longer scales with speed factor
-    updates.speedBoost = Math.max(-2.0, gameState.speedBoost - 0.4) // MUSHROOM_SPEED_REDUCTION
+    // Negative score penalty and stronger speed reduction
+    updates.score = Math.max(0, gameState.score - 10) // Subtract 5 points, don't go below 0
+    updates.speedBoost = Math.max(-2.0, gameState.speedBoost - 0.8) // Stronger speed reduction
 
     soundSystem.playSound('collect', 0.4) // Quieter sound to indicate it's not as good as fruit
     // Create purple negative effect
