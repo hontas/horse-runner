@@ -19,12 +19,19 @@ export default defineConfig({
         name: 'Horse Runner Game',
         short_name: 'HorseRunner',
         description: 'A fun side-scrolling horse running game',
-        theme_color: '#ffffff',
+        theme_color: '#E91E63',
+        background_color: '#ffffff',
+        display: 'fullscreen',
         icons: [
           {
-            src: 'vite.svg',
-            sizes: '256x256',
-            type: 'image/svg',
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
           },
         ],
       },
