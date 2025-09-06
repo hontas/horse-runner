@@ -43,6 +43,36 @@ export class TerrainObjects {
       isRideable: true,
     }
   }
+
+  /**
+   * Generate a floating platform with apples on it
+   */
+  static generateFloatingPlatformWithApples(spawnX: number): GameObject[] {
+    const platform = TerrainObjects.generateFloatingPlatform(spawnX)
+    const apples: GameObject[] = []
+
+    // Calculate how many apples can fit on the platform (with some padding)
+    const appleWidth = 25
+    const padding = 15 // Space between apples and from edges
+    const availableWidth = platform.width - (padding * 2)
+    const numApples = Math.max(1, Math.floor(availableWidth / (appleWidth + padding)))
+
+    // Position apples evenly across the platform
+    for (let i = 0; i < numApples; i++) {
+      const appleX = platform.x + padding + (i * (availableWidth / numApples)) + (appleWidth / 2)
+      const appleY = platform.y - appleWidth - 5 // Position apples just above the platform
+
+      apples.push({
+        x: appleX,
+        y: appleY,
+        width: appleWidth,
+        height: appleWidth,
+        type: 'fruit',
+      })
+    }
+
+    return [platform, ...apples]
+  }
 }
 
 /**

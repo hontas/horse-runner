@@ -9,7 +9,7 @@ import { CollectibleObjects, ObstacleObjects, TerrainObjects } from '../objects'
 interface SpawnEntry {
   type: 'collectible' | 'terrain' | 'obstacle'
   weight: number
-  generator: (spawnX: number) => GameObject
+  generator: (spawnX: number) => GameObject | GameObject[]
 }
 
 export class ObjectSpawner {
@@ -76,9 +76,9 @@ export class ObjectSpawner {
     },
     {
       type: 'terrain',
-      weight: 0.18, // Floating platforms
+      weight: 0.18, // Floating platforms with apples
       generator: (spawnX) =>
-        TerrainObjects.generateFloatingPlatform(spawnX + 100),
+        TerrainObjects.generateFloatingPlatformWithApples(spawnX + 100),
     },
   ]
 
@@ -100,10 +100,19 @@ export class ObjectSpawner {
   generateObjects(spawnX: number, _speedFactor: number = 1.0): GameObject[] {
     const newObjects: GameObject[] = []
 
+    // Helper function to add objects (handles both single objects and arrays)
+    const addObjects = (result: GameObject | GameObject[]) => {
+      if (Array.isArray(result)) {
+        newObjects.push(...result)
+      } else {
+        newObjects.push(result)
+      }
+    }
+
     // Generate collectibles (higher frequency)
     const collectibleEntry = this.selectFromTable(this.collectibleTable)
     if (collectibleEntry) {
-      newObjects.push(collectibleEntry.generator(spawnX))
+      addObjects(collectibleEntry.generator(spawnX))
     }
 
     // Generate terrain at constant rate as requested
@@ -112,7 +121,7 @@ export class ObjectSpawner {
     if (Math.random() < terrainChance) {
       const terrainEntry = this.selectFromTable(this.terrainTable)
       if (terrainEntry) {
-        newObjects.push(terrainEntry.generator(spawnX))
+        addObjects(terrainEntry.generator(spawnX))
       }
     }
 
